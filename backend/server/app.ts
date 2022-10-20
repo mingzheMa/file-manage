@@ -7,6 +7,7 @@ import session from "express-session";
 import connectRedis from "connect-redis";
 
 import errorMiddleware from "./middleware/error";
+import authMiddleware from "./middleware/auth";
 import routers from "./routes/index";
 import redisClient from "./redis/index";
 
@@ -15,7 +16,7 @@ const app = express();
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, "public")));
+
 app.use(cookieParser());
 
 // token session
@@ -27,6 +28,13 @@ app.use(
     secret: "session",
     name: "token",
   })
+);
+
+// 静态文件
+app.use(
+  "/public",
+  authMiddleware,
+  express.static(path.join(__dirname, "public"))
 );
 
 // 路由

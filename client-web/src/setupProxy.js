@@ -8,4 +8,12 @@ module.exports = function (app) {
       changeOrigin: true, // 设置跨域请求
     })
   );
+
+  app.use(
+    "/public",
+    createProxyMiddleware({
+      target: "http://localhost:9527",
+      changeOrigin: true, // 设置跨域请求
+    })
+  );
 };

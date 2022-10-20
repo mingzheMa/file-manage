@@ -4,6 +4,7 @@ import path from "path";
 
 import * as fileServices from "../../db/services/file";
 import nextCatch from "../HOF/nextCatch";
+import authMiddleware from "../middleware/auth";
 
 const router = express.Router();
 
@@ -51,7 +52,6 @@ const storage = multer.diskStorage({
     cb(null, path.resolve(__dirname, "../public/upload"));
   },
   filename(req, file, cb) {
-    console.log(file);
     cb(
       null,
       `${Date.now()}-${Math.floor(Math.random() * 100000)}-${file.originalname}`
@@ -62,17 +62,22 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: {
-    fileSize:  0.1, //1M
+    // fileSize: 0.1, //1M
   },
 });
 
 router.post(
   "/upload",
   upload.array("file"),
+  authMiddleware,
   nextCatch(async (req, res) => {
-    console.log(req.body);
-    console.log(req.files);
-    res.send("上传文件了奥");
+    res.send(
+      req.files.map((file) => ({
+        originalname: file.originalname,
+        mimetype: file.mimetype,
+        filepath: `/public/upload/${file.filename}`,
+      }))
+    );
   })
 );
 
