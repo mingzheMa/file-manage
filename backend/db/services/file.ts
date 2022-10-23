@@ -10,14 +10,14 @@ interface FileForm {
 
 interface UpdateFileForm {
   fileStructureId?: number;
-  structureId?: number;
+  structureId?: string;
   content?: string;
   name?: string;
 }
 
 interface FindFileForm {
-  fileStructureId?: number;
-  structureId?: number;
+  fileStructureId: number;
+  structureId?: string;
   id?: number;
   name?: string;
 }
@@ -27,7 +27,7 @@ const tableRules = {
     type: "number",
   },
   structureId: {
-    type: "number",
+    type: "string",
   },
   content: {
     type: "string",
@@ -45,29 +45,49 @@ const tableRules = {
 
 export const create = async function (
   fileStructureId: number,
-  structureId: number,
-  obj: FileForm
+  structureId: string,
+  files: FileForm[]
 ) {
   const form = {
     fileStructureId,
     structureId,
-    ...obj,
+    files,
   };
 
-  // @ts-ignore
-  await validate.async(form, tableRules, {format: "flat"});
+  await validate.async(
+    form,
+    {
+      fileStructureId: tableRules.fileStructureId,
+      structureId: tableRules.structureId,
+      files: {
+        type: "array",
+        presence: {
+          allowEmpty: false,
+        },
+      },
+    },
+    // @ts-ignore
+    { format: "flat" }
+  );
 
   const hasFileName = await File.findOne({
     where: {
-      name: obj.name,
+      name: files.map((file) => file.name),
+      structureId,
     },
   });
 
   if (hasFileName) {
     return Promise.reject(error[3001]);
   } else {
-    const res = await File.create(form);
-    return res.toJSON();
+    const res = await File.bulkCreate(
+      files.map((file) => ({
+        fileStructureId,
+        structureId,
+        ...file,
+      }))
+    );
+    return res.map((i) => i.toJSON());
   }
 };
 
@@ -81,7 +101,7 @@ export const remove = async function (fileId: number) {
 
 export const update = async function (fileId: number, obj: UpdateFileForm) {
   // @ts-ignore
-  await validate.async(obj, tableRules, {format: "flat"});
+  await validate.async(obj, tableRules, { format: "flat" });
 
   const hasFile = await File.findByPk(fileId);
 
@@ -98,6 +118,15 @@ export const update = async function (fileId: number, obj: UpdateFileForm) {
 };
 
 export const find = async function (fildForm: FindFileForm, limit?: number) {
+  await validate.async(
+    fildForm,
+    {
+      fileStructureId: tableRules.fileStructureId,
+    },
+    // @ts-ignore
+    { format: "flat" }
+  );
+
   const where = fildForm as WhereOptions<File>;
 
   // 如果搜索条件加了name，则根据name模糊查找

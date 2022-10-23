@@ -18,8 +18,8 @@ export default class File extends Model<File> {
   @Column(DataType.STRING)
   name!: string;
 
-  @Column(DataType.INTEGER)
-  structureId!: number;
+  @Column(DataType.STRING)
+  structureId!: string;
 
   @ForeignKey(() => FileStructure)
   @Column(DataType.INTEGER)
