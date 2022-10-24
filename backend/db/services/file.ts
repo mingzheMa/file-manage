@@ -9,9 +9,7 @@ interface FileForm {
 }
 
 interface UpdateFileForm {
-  fileStructureId?: number;
   structureId?: string;
-  content?: string;
   name?: string;
 }
 
@@ -100,21 +98,52 @@ export const remove = async function (fileId: number) {
 };
 
 export const update = async function (fileId: number, obj: UpdateFileForm) {
-  // @ts-ignore
-  await validate.async(obj, tableRules, { format: "flat" });
+  await validate.async(
+    obj,
+    {
+      fileStructureId: tableRules.fileStructureId,
+      structureId: tableRules.structureId,
+      content: {
+        type: "string",
+      },
+      name: {
+        type: "string",
+      },
+    },
+    // @ts-ignore
+    { format: "flat" }
+  );
 
+  // 确认存在该文件
   const hasFile = await File.findByPk(fileId);
+  if (!hasFile) {
+    return Promise.reject(error[3002]);
+  }
 
-  if (hasFile) {
-    return await File.update(obj, {
+  // 确认修改后没有重名
+  const hasFileName = await File.findOne({
+    where: {
+      name: obj.name || hasFile.name,
+      structureId: obj.structureId || hasFile.structureId,
+    },
+  });
+  if (hasFileName) {
+    return Promise.reject(error[3001]);
+  }
+
+  // 更改文件
+  return await File.update(
+    {
+      name: obj.name,
+      structureId: obj.structureId,
+    },
+    {
       where: {
         id: fileId,
       },
       limit: 1,
-    });
-  } else {
-    return Promise.reject(error[3002]);
-  }
+    }
+  );
 };
 
 export const find = async function (fildForm: FindFileForm, limit?: number) {

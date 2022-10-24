@@ -41,3 +41,20 @@ export function addFiles(payload: {
 }): Promise<[fileTypes.DisplayFile[]]> {
   return axios.post("/api/file", payload);
 }
+
+// 修改文件
+export function setFiles(
+  fileId: number,
+  payload: {
+    structureId?: string;
+    content?: string;
+    name?: string;
+  }
+): Promise<null> {
+  return axios.put(`/api/file/${fileId}`, payload);
+}
+
+// 删除文件
+export function removeFiles(fileId: number): Promise<null> {
+  return axios.delete(`/api/file/${fileId}`);
+}

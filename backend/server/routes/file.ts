@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 
+import File from "../../db/modules/File";
 import * as fileServices from "../../db/services/file";
 import * as fileStructureServices from "../../db/services/fileStructure";
 import nextCatch from "../HOF/nextCatch";
@@ -18,7 +19,6 @@ router.post(
       userId: req.session.token.id,
     });
     const structureId = req.body.structureId;
-    delete req.body.fileStructureId;
     delete req.body.structureId;
 
     res.send(
@@ -84,6 +84,26 @@ const upload = multer({
   storage,
   limits: {
     // fileSize: 0.1, //1M
+  },
+  async fileFilter(req, file, cb) {
+    const fileName = Buffer.from(file.originalname, "latin1").toString("utf-8");
+    const hasFileName = await File.findOne({
+      where: {
+        name: fileName,
+      },
+    });
+
+    if (hasFileName) {
+      cb(
+        {
+          code: "400",
+          message: "文件重名",
+        },
+        false
+      );
+    } else {
+      cb(null, true);
+    }
   },
 });
 

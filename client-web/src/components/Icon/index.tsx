@@ -7,7 +7,7 @@ interface Props {
 const Icon: React.FC<Props> = (props) => {
   return (
     // anticon类是为了在侧边栏收起的时候menu中的icon样式
-    <svg className="icon anticon" aria-hidden="true" style={{color:"#fff"}}>
+    <svg className="icon anticon" aria-hidden="true">
       <use xlinkHref={props.href} />
     </svg>
   );

@@ -3,19 +3,29 @@
 
   &__header {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-    &-name{
-
+    &-name {
     }
 
-    &-btns{
-      &__upload{
+    &-utils {
+      display: flex;
+      align-items: center;
+
+      :global(.ant-slider) {
+        width: 120px;
+      }
+
+      &__upload {
+        margin-left: 4px;
+        font-size: 22px;
         cursor: pointer;
       }
     }
   }
 
   &__list {
-    flex-grow: 1;
+    height: calc(100% - 35px);
   }
 }

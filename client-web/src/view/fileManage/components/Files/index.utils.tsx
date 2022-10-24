@@ -29,7 +29,7 @@ async function uploading(
   // 获取待上传文件
   const target = e.target as HTMLInputElement;
   const files = target.files || [];
-  console.log(files)
+
   // 这里获取文件后就可以删除上传input的dom了
   document.body.removeChild(target);
 
@@ -40,28 +40,38 @@ async function uploading(
   }
   const key = Date.now().toString();
   // 上传文件信息
-  const uploadedFiles = await fileApi.uploadFiles(formData, {
-    onUploadProgress(e) {
-      // 上传进度
-      const progress = Math.round((e.loaded / e.total) * 100);
+  const uploadedFiles = await fileApi
+    .uploadFiles(formData, {
+      onUploadProgress(e) {
+        // 上传进度
+        const progress = Math.round((e.loaded / e.total) * 100);
+        notification.open({
+          message: `正在上传${files?.length}个文件`,
+          key,
+          duration: 0,
+          description: <Progress size="small" percent={progress} />,
+        });
+
+        if (progress === 100) {
+          setTimeout(() => {
+            notification.close(key);
+          }, 3000);
+        }
+      },
+
+      headers: {
+        "Content-type": "charset=utf-8",
+      },
+    })
+    .catch((err) => {
       notification.open({
-        message: `正在上传${files?.length}个文件`,
+        message: `${err.response.data}`,
         key,
-        duration: 0,
-        description: <Progress size="small" percent={progress} />,
+        duration: 3000,
+        description: <Progress size="small" percent={100} status="exception" />,
       });
-
-      if (progress === 100) {
-        setTimeout(() => {
-          notification.close(key);
-        }, 3000);
-      }
-    },
-
-    headers:{
-      "Content-type": "charset=utf-8"
-    }
-  });
+      return Promise.reject(err);
+    });
 
   addFiles(uploadedFiles, fileDir, getFiles);
 }

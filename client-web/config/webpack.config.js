@@ -547,7 +547,10 @@ module.exports = function (webpackEnv) {
                 {
                   loader: "style-resources-loader",
                   options: {
-                    patterns: path.resolve(__dirname, "../src/style/index.less")
+                    patterns: path.resolve(
+                      __dirname,
+                      "../src/style/variable.less"
+                    ),
                   },
                 },
               ]),
@@ -573,14 +576,7 @@ module.exports = function (webpackEnv) {
                   },
                 },
                 "sass-loader"
-              ).concat([
-                {
-                  loader: "style-resources-loader",
-                  options: {
-                    patterns: path.resolve(__dirname, "../src/style/index.less")
-                  },
-                },
-              ]),
+              ),
             },
             {
               test: lessModuleRegex,
@@ -596,7 +592,17 @@ module.exports = function (webpackEnv) {
                   },
                 },
                 "less-loader"
-              )
+              ).concat([
+                {
+                  loader: "style-resources-loader",
+                  options: {
+                    patterns: path.resolve(
+                      __dirname,
+                      "../src/style/variable.less"
+                    ),
+                  },
+                },
+              ]),
             },
             // "file" loader makes sure those assets get served by WebpackDevServer.
             // When you `import` an asset, you get its (virtual) filename.
