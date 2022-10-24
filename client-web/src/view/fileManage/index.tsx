@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { Divider } from "antd";
+import { Button, Divider, Input, Modal } from "antd";
 import FileTree from "./components/FileTree";
 import Files from "./components/Files";
 import FullSpin from "@/components/FullSpin";
@@ -41,16 +41,70 @@ export default function index() {
     setFileStructure(res);
   }
 
+  // 添加根文件夹
+  function addRootFile() {
+    let value = "";
+
+    Modal.confirm({
+      icon: false,
+      title: "添加文件夹",
+      content: (
+        <Input
+          placeholder="请输入名称"
+          onChange={(e) => (value = e.target.value)}
+        />
+      ),
+      onOk() {
+        const structure = fileStructure.structure.concat({
+          name: value,
+          id: Date.now().toString(),
+          children: [],
+        });
+
+        return new Promise((res, rej) => {
+          fileApi
+            .setFileTree({ structure })
+            .then(() => {
+              getFileTree();
+              res(null);
+            })
+            .catch(() => {
+              rej();
+            });
+        });
+      },
+    });
+  }
+
   return (
     // 这个file-manage是为了获取dom的时候保证在当前页面
     <div className={`${style["file-manage"]} file-manage`}>
       <div className={style["file-manage__tree"]}>
         <FullSpin spinning={treeLoading}>
-          <FileTree
-            fileStructure={fileStructure.structure}
-            getFileTree={getFileTree}
-            setSelectedDir={setSelectedDir}
-          />
+          <div style={{ height: "100%" }}>
+            {/* 添加按钮 */}
+            <Button
+              type="primary"
+              block
+              onClick={addRootFile}
+              style={{ marginBottom: "4px" }}
+            >
+              添加文件夹
+            </Button>
+
+            {/* 文件树 */}
+            <div className={style["file-manage__tree-container"]}>
+              {fileStructure.structure.length ? (
+                <FileTree
+                  fileStructure={fileStructure.structure}
+                  getFileTree={getFileTree}
+                  setSelectedDir={setSelectedDir}
+                />
+              ) : (
+                <div>暂无数据</div>
+              )}
+            </div>
+          </div>
         </FullSpin>
       </div>
 

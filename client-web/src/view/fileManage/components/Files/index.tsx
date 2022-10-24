@@ -41,7 +41,7 @@ const Files: React.FC<Props> = (props) => {
 
   return (
     <FullSpin spinning={loading}>
-      <div className={style["files"]}>
+      {props.selectedDir.id ? <div className={style["files"]}>
         <div className={style["files__header"]}>
           <div className={style["files__header-name"]}>
             {props.selectedDir.name}（共{files.length}个）
@@ -74,7 +74,7 @@ const Files: React.FC<Props> = (props) => {
             getFiles={() => getFiles({ structureId: props.selectedDir.id })}
           />
         </div>
-      </div>
+      </div> : <div>请选择文件夹</div>}
     </FullSpin>
   );
 };
