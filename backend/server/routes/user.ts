@@ -44,7 +44,6 @@ router.post(
     let userInfo = await User.findOne({
       where: { openId: wxRes.data.openid },
     });
-    console.log(userInfo);
     if (userInfo) {
       userInfo = userInfo.toJSON();
       res.send({
