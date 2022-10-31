@@ -35,12 +35,22 @@ router.post(
         grant_type: "authorization_code",
       },
     });
-    const hasUser = await User.findOne({
+
+    // 接口报错
+    if (wxRes.data.errmsg) {
+      await Promise.reject(wxRes.data.errmsg);
+    }
+
+    let userInfo = await User.findOne({
       where: { openId: wxRes.data.openid },
     });
-
-    if (hasUser) {
-      res.send(hasUser);
+    console.log(userInfo);
+    if (userInfo) {
+      userInfo = userInfo.toJSON();
+      res.send({
+        ...userInfo,
+        access_token: jwtUtils.val2Token(userInfo, globalConfig.loginTime),
+      });
     } else {
       res.send({
         wxLoginToken: jwtUtils.val2Token({
@@ -52,32 +62,87 @@ router.post(
   })
 );
 
+// 注册逻辑函数
+async function register(req) {
+  // 这里需要搞一个事务将用户注册和创建文件结构两个行为捆绑
+  const transaction = await db.transaction();
+
+  try {
+    const userInfo = await userServices.create(req.body, {
+      transaction,
+    });
+    await fileStructureServices.create(
+      userInfo.id,
+      {
+        structure: [],
+      },
+      {
+        transaction,
+      }
+    );
+
+    transaction.commit();
+
+    return userInfo;
+  } catch (error) {
+    transaction.rollback();
+    await Promise.reject(error);
+  }
+}
+
+router.post(
+  "/wx-bind-account",
+  nextCatch(async (req, res) => {
+    const openId = jwtUtils.token2Val(req.body.wxLoginToken).openId;
+
+    // 通过账号密码确定要绑定的用户
+    const result = await userServices
+      .login({
+        mobile: req.body.mobile,
+        password: req.body.password,
+      })
+      .catch((err) => Promise.resolve(err));
+
+    if (result.code && result.code === "400") {
+      // 登录失败
+
+      // 确定账户存在
+      const hasUser = await User.findOne({
+        where: { mobile: req.body.mobile },
+      });
+
+      if (hasUser) {
+        await Promise.reject("密码错误");
+      } else {
+        const userInfo = await register(req);
+
+        res.send({
+          ...userInfo,
+          access_token: jwtUtils.val2Token(userInfo, globalConfig.loginTime),
+        });
+      }
+    } else {
+      // 是否绑定了微信
+      if (result.isBindWx) {
+        await Promise.reject("该用户已经绑定了微信");
+      }
+
+      // 用户存在，绑定openid
+      await userServices.update(result.id, { openId });
+
+      res.send({
+        ...result,
+        access_token: jwtUtils.val2Token(result, globalConfig.loginTime),
+      });
+    }
+  })
+);
+
 router.post(
   "/",
   nextCatch(async (req, res) => {
-    // 这里需要搞一个事务将用户注册和创建文件结构两个行为捆绑
-    const transaction = await db.transaction();
-
-    try {
-      const userInfo = await userServices.create(req.body, {
-        transaction,
-      });
-      await fileStructureServices.create(
-        userInfo.id,
-        {
-          structure: [],
-        },
-        {
-          transaction,
-        }
-      );
-
-      transaction.commit();
-      res.send(userInfo);
-    } catch (error) {
-      transaction.rollback();
-      await Promise.reject(error);
-    }
+    const userInfo = await register(req);
+    res.send(userInfo);
   })
 );
 

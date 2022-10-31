@@ -1,6 +1,2 @@
 <!--pages/about/about.wxml-->
 <text>pages/about/about.wxml</text>
-
-<template name="even">
-  <view> even </view>
-</template>

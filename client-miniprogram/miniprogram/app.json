@@ -1,8 +1,10 @@
 {
-  "pages": [
-    "pages/index/index",
-    "pages/logs/logs",
-    "pages/about/about"
+  "pages": ["pages/index/index", "pages/about/about","pages/bind-account/bind-account"],
+  "subPackages": [
+    {
+      "root": "pages/file-manage/",
+      "pages": ["file-manage"]
+    }
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -10,7 +12,18 @@
     "navigationBarTitleText": "Weixin",
     "navigationBarTextStyle": "black"
   },
-  "style": "v2",
+  "tabBar": {
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "工具"
+      },
+      {
+        "pagePath": "pages/about/about",
+        "text": "我的"
+      }
+    ]
+  },
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents"
 }

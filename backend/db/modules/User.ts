@@ -27,6 +27,12 @@ export default class User extends Model<User> {
   @Column(DataType.STRING)
   openId!: string;
 
+  // 是否绑定微信
+  @Column(DataType.VIRTUAL)
+  get isBindWx(): Boolean {
+    return Boolean(this.getDataValue("openId"))
+  }
+
   @AllowNull(false)
   @Column(DataType.STRING(128))
   get password(): string {

@@ -8,6 +8,7 @@ interface UserForm {
   nick_name?: string;
   mobile: string;
   password: string;
+  openId?: string;
 }
 
 const tableRules = {
@@ -59,6 +60,7 @@ export const create = async function (obj: UserForm, payload?: any) {
     });
     const json = userInfo.toJSON();
     delete json.password;
+    delete json.openId;
     return json;
   }
 };
@@ -71,10 +73,15 @@ export const remove = async function (userId: number) {
   });
 };
 
-export const update = async function (userId: number, obj: UserForm) {
-  // @ts-ignore
-  await validate.async(obj, tableRules, { format: "flat" });
-
+export const update = async function (
+  userId: number,
+  obj: {
+    nick_name?: string;
+    mobile?: string;
+    password?: string;
+    openId?: string;
+  }
+) {
   const hasUser = await User.findByPk(userId);
 
   if (hasUser) {
@@ -97,6 +104,7 @@ export const find = async function (where: WhereOptions<User>) {
   if (hasUser) {
     const json = hasUser.toJSON();
     delete json.password;
+    delete json.openId;
     return json;
   } else {
     return Promise.reject(error[1004]);
@@ -114,6 +122,7 @@ export const login = async function (obj: UserForm) {
   if (userInfo) {
     const json = userInfo.toJSON();
     delete json.password;
+    delete json.openId;
     return json;
   } else {
     return Promise.reject(error[1003]);

@@ -1,4 +1,4 @@
-// pages/about/about.ts
+// pages/file-manage/file-manage.ts
 Page({
 
   /**
