@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Card, Form, Input, message } from "antd";
+import { Button, Card, Checkbox, Form, Input, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import style from "./index.module.less";
 import * as adminApi from "../../api/adminApi";
@@ -12,10 +12,13 @@ const Login: React.FC = () => {
     // 登录
     try {
       setCommitLoading(true);
-      await adminApi.login({
+      const res = await adminApi.login({
         mobile: form.mobile,
         password: form.password,
       });
+
+      localStorage.setItem("access_token", res.access_token || "");
+
       navigate("/", { replace: true });
     } catch (error: any) {
       message.error(`${error.response.data}`);
@@ -23,7 +26,10 @@ const Login: React.FC = () => {
       setCommitLoading(false);
     }
 
-    // 判断是否保持登录（暂留）
+    // 判断是否不需要保持登录
+    if (!form.remember) {
+      localStorage.removeItem("access_token");
+    }
   }
 
   return (
@@ -54,9 +60,9 @@ const Login: React.FC = () => {
             <Input.Password />
           </Form.Item>
 
-          {/* <Form.Item name="remember" valuePropName="checked">
+          <Form.Item name="remember" valuePropName="checked">
             <Checkbox>保持登录</Checkbox>
-          </Form.Item> */}
+          </Form.Item>
 
           <Form.Item>
             <Button

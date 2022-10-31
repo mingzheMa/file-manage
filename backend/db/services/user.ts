@@ -1,3 +1,4 @@
+import { WhereOptions } from "sequelize";
 import User from "../modules/User";
 import error from "../error";
 import sha256 from "../utils/sha256";
@@ -88,8 +89,10 @@ export const update = async function (userId: number, obj: UserForm) {
   }
 };
 
-export const find = async function (userId: number) {
-  const hasUser = await User.findByPk(userId);
+export const find = async function (where: WhereOptions<User>) {
+  const hasUser = await User.findOne({
+    where,
+  });
 
   if (hasUser) {
     const json = hasUser.toJSON();

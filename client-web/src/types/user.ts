@@ -4,4 +4,5 @@ export interface UserInfo {
   mobile: string;
   nick_name: string;
   updatedAt: string;
+  access_token?: string;
 }

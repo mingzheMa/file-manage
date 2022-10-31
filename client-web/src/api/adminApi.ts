@@ -3,7 +3,10 @@ import axios from "../axios";
 import * as userTypes from "@/types/user";
 
 // 登录
-export function login(payload: { mobile: string; password: string }) {
+export function login(payload: {
+  mobile: string;
+  password: string;
+}): Promise<userTypes.UserInfo> {
   return axios.post("/api/user/login", payload);
 }
 

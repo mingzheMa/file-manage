@@ -30,7 +30,8 @@ const Sider: React.FC = () => {
   };
 
   const logout = function () {
-    document.cookie = "token='';path='/'";
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("userInfo");
     navigate("/login");
   };
 

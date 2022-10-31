@@ -16,7 +16,7 @@ router.post(
   nextCatch(async (req, res) => {
     // 获取文件结构id
     const fileStructure = await fileStructureServices.find({
-      userId: req.session.token.id,
+      userId: req._jwt.id,
     });
     const structureId = req.body.structureId;
     delete req.body.structureId;
@@ -51,7 +51,7 @@ router.get(
   nextCatch(async (req, res) => {
     // 获取文件结构id
     const fileStructure = await fileStructureServices.find({
-      userId: req.session.token.id,
+      userId: req._jwt.id,
     });
 
     // 处理查找数量

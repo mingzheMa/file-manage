@@ -23,6 +23,10 @@ export default class User extends Model<User> {
   @Column(DataType.STRING)
   mobile!: string;
 
+  // 微信openId
+  @Column(DataType.STRING)
+  openId!: string;
+
   @AllowNull(false)
   @Column(DataType.STRING(128))
   get password(): string {

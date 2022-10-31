@@ -20,7 +20,7 @@ router.get(
   authMiddleware,
   nextCatch(async (req, res) => {
     res.send(
-      await fileStructureServices.find({ userId: req.session.token.id })
+      await fileStructureServices.find({ userId: req._jwt.id })
     );
   })
 );
@@ -30,7 +30,7 @@ router.put(
   authMiddleware,
   nextCatch(async (req, res) => {
     await fileStructureServices.update(
-      { userId: req.session.token.id },
+      { userId: req._jwt.id },
       { structure: req.body.structure }
     );
     res.send();
