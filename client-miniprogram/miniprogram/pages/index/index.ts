@@ -6,7 +6,7 @@ Page({
   data: {
     utilList: [
       {
-        icon: "description",
+        icon: "manage-order",
         title: "文件管理",
         key: "file-manage",
       },

@@ -2,7 +2,7 @@
   <!-- 工具列表 -->
   <view class="homepage__util-list">
     <view class="homepage__util" wx:for="{{utilList}}" wx:key="key" mark:item="{{item}}" bind:tap="onClickUtil">
-      <van-icon name="{{item.icon}}" size="30" />
+      <van-icon class-prefix="iconfont" name="{{item.icon}}" size="40" />
       <view class="homepage__util-title">{{item.title}}</view>
     </view>
   </view>

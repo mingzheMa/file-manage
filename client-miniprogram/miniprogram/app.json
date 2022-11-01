@@ -16,11 +16,15 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "工具"
+        "text": "工具",
+        "iconPath": "./image/viewlist.png",
+        "selectedIconPath":"./image/viewlist-selected.png"
       },
       {
         "pagePath": "pages/about/about",
-        "text": "我的"
+        "text": "我的",
+        "iconPath": "./image/user.png",
+        "selectedIconPath":"./image/user-selected.png"
       }
     ]
   },
