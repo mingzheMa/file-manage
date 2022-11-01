@@ -68,25 +68,14 @@ export const create = async function (
     { format: "flat" }
   );
 
-  const hasFileName = await File.findOne({
-    where: {
-      name: files.map((file) => file.name),
+  const res = await File.bulkCreate(
+    files.map((file) => ({
+      fileStructureId,
       structureId,
-    },
-  });
-
-  if (hasFileName) {
-    return Promise.reject(error[3001]);
-  } else {
-    const res = await File.bulkCreate(
-      files.map((file) => ({
-        fileStructureId,
-        structureId,
-        ...file,
-      }))
-    );
-    return res.map((i) => i.toJSON());
-  }
+      ...file,
+    }))
+  );
+  return res.map((i) => i.toJSON());
 };
 
 export const remove = async function (fileId: number) {
@@ -118,17 +107,6 @@ export const update = async function (fileId: number, obj: UpdateFileForm) {
   const hasFile = await File.findByPk(fileId);
   if (!hasFile) {
     return Promise.reject(error[3002]);
-  }
-
-  // 确认修改后没有重名
-  const hasFileName = await File.findOne({
-    where: {
-      name: obj.name || hasFile.name,
-      structureId: obj.structureId || hasFile.structureId,
-    },
-  });
-  if (hasFileName) {
-    return Promise.reject(error[3001]);
   }
 
   // 更改文件

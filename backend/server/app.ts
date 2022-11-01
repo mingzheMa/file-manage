@@ -5,7 +5,6 @@ import logger from "morgan";
 import cookieParser from "cookie-parser";
 
 import errorMiddleware from "./middleware/error";
-import authMiddleware from "./middleware/auth";
 import routers from "./routes/index";
 
 const app = express();
@@ -18,7 +17,6 @@ app.use(cookieParser());
 // 静态文件
 app.use(
   "/public",
-  authMiddleware,
   express.static(path.join(__dirname, "public"))
 );
 

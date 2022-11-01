@@ -1,12 +1,13 @@
 import express from "express";
 import multer from "multer";
 import path from "path";
+import fs from "fs";
 
-import File from "../../db/modules/File";
 import * as fileServices from "../../db/services/file";
 import * as fileStructureServices from "../../db/services/fileStructure";
 import nextCatch from "../HOF/nextCatch";
 import authMiddleware from "../middleware/auth";
+import * as OSSUtils from "../utils/oss";
 
 const router = express.Router();
 
@@ -85,26 +86,6 @@ const upload = multer({
   limits: {
     // fileSize: 0.1, //1M
   },
-  async fileFilter(req, file, cb) {
-    const fileName = Buffer.from(file.originalname, "latin1").toString("utf-8");
-    const hasFileName = await File.findOne({
-      where: {
-        name: fileName,
-      },
-    });
-
-    if (hasFileName) {
-      cb(
-        {
-          code: "400",
-          message: "文件重名",
-        },
-        false
-      );
-    } else {
-      cb(null, true);
-    }
-  },
 });
 
 router.post(
@@ -112,15 +93,26 @@ router.post(
   upload.array("file"),
   authMiddleware,
   nextCatch(async (req, res) => {
-    res.send(
-      req.files.map((file) => ({
+    // 文件上传至oss
+    const uploadPromise = req.files.map((file) => OSSUtils.upload(file.path));
+    const uploaded = await Promise.all(uploadPromise);
+
+    const response = [];
+    req.files.forEach((file, index) => {
+      // 构建返回信息
+      response.push({
         originalname: Buffer.from(file.originalname, "latin1").toString(
           "utf-8"
         ),
         mimetype: file.mimetype,
-        filepath: `/public/upload/${file.filename}`,
-      }))
-    );
+        filepath: uploaded[index].url,
+      });
+
+      // 删除本地文件
+      fs.rmSync(file.path)
+    });
+
+    res.send(response);
   })
 );
 

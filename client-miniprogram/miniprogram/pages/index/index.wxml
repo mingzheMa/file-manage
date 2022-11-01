@@ -6,4 +6,7 @@
       <view class="homepage__util-title">{{item.title}}</view>
     </view>
   </view>
+
+  <image  src="http://marx-file-manage.oss-cn-beijing.aliyuncs.com/files/IMG_5808%E7%9A%84%E5%89%AF%E6%9C%AC.JPG"  lazy-load="false" binderror="" bindload="" />
+    
 </view>
