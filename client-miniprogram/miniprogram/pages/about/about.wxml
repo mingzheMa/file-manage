@@ -1,2 +1,10 @@
-<!--pages/about/about.wxml-->
-<text>pages/about/about.wxml</text>
+<!-- pages/about/about.wxml -->
+<view class="about">
+    <view class="about__info">
+        <van-image round fit="cover" width="5rem" height="5rem" src="{{userInfo.avatar}}" />
+        <view class="about__info-right">
+            <view class="about__info-name">{{userInfo.nick_name}}</view>
+            <view class="about__info-phone">手机号：{{userInfo.mobile}}</view>
+        </view>
+    </view>
+</view>

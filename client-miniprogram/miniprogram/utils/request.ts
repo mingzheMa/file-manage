@@ -1,4 +1,5 @@
 import config from "../config/config";
+import * as userApi from "../api/user";
 
 type method =
   | "OPTIONS"
@@ -32,12 +33,30 @@ function getRequest(method: method) {
     if (envVersion === "develop") {
       url = `${config.requestProxy}${url}`;
     }
+    // 增加请求头
+    const header = {
+      // 登录状态token
+      Authorization: wx.getStorageSync("access_token"),
+    };
     return new Promise((resove, reject) => {
       wx.request({
         url,
         data,
         method,
-        success(res) {
+        header,
+        async success(res) {
+          if (res.statusCode === 401) {
+            const { code } = await wx.login();
+            const res = await userApi.login({ code });
+
+            wx.setStorageSync("access_token", res.data.access_token);
+            wx.setStorageSync("user_info", res.data);
+
+            wx.reLaunch({
+              url: `/${getCurrentPages()[0].route}`,
+            });
+          }
+
           resove(res);
         },
         fail(err) {

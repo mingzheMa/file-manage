@@ -1,2 +1,45 @@
-<!--pages/file-manage/file-manage.wxml-->
-<text>pages/file-manage/file-manage.wxml</text>
+<!-- pages/file-manage/file-manage.wxml -->
+<!-- 处理路径模板 -->
+<import src="../../template/path.wxml" />
+<view class="file-manage">
+    <text class="global-title-1">文件结构</text>
+    <!-- 路径 -->
+    <view class="file-manage__path">
+        当前路径:
+        <template is="path" data="{{path:dirStack }}" />
+    </view>
+    <!-- 添加目录 -->
+    <van-field model:value="{{addDirName}}" center clearable label="目录名称" placeholder="创建目录名称" border use-button-slot>
+        <van-button slot="button" size="small" type="primary" bind:tap="onAddDir">添加目录</van-button>
+    </van-field>
+    <!-- 当前目录 -->
+    <!-- right-width中的判断是如果是根路径是不能删除当前目录的 -->
+    <van-swipe-cell left-width="{{ dirStack.length <= 1 ? 0 : 60  }}" right-width="{{dirStack.length <= 1 ? 0 : 60 }}">
+        <!-- 返回上级目录操作 -->
+        <van-button slot="left" custom-style="width:60px;height:100%" type="info" bind:tap="onBackDir">
+            <van-icon class-prefix="iconfont" name="return" size="30" />
+        </van-button>
+        <!-- 目录列表 -->
+        <van-cell-group wx:if="{{dirStack[dirStack.length - 1].children.length}}">
+            <block wx:for="{{dirStack[dirStack.length - 1].children}}" wx:key="id">
+                <van-cell title="/{{item.name}}" data-id="{{item.id}}" is-link bind:tap="onDrillDownDir" />
+            </block>
+        </van-cell-group>
+        <!-- 空目录 -->
+        <view wx:else class="file-manage__dir-list-null">暂无数据</view>
+        <!-- 删除操作 -->
+        <view slot="right" style="width:120px;height:100%">
+            <van-button custom-style="width:60px;height:100%" type="danger" bind:tap="onRemoveDir">
+                <van-icon class-prefix="iconfont" name="ashbin" size="30" />
+            </van-button>
+        </view>
+    </van-swipe-cell>
+    <!-- 根目录下没有文件 -->
+    <block wx:if="{{dirStack.length > 1}}">
+        {{currDirFilesLoading}}
+        <text class="global-title-1">目录文件</text>
+        <view>文件目录。。。</view>
+    </block>
+    <!-- 弹出框位置，逻辑在js中 -->
+    <van-dialog id="remove" />
+</view>

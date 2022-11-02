@@ -1,0 +1,4 @@
+<template name="path">
+    <!-- 根路径的id为0 -->
+    <block wx:for="{{path}}" wx:key="index">{{item.id === "0" ? "/" : item.name + "/"}}</block>
+</template>

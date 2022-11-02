@@ -10,7 +10,7 @@ async function check() {
   const noCheck = config.loginPathWhiteList.includes(
     getCurrentPages()[0].route
   );
-  console.log(getCurrentPages());
+  
   if (noCheck) return Promise.resolve();
 
   const { code } = await wx.login();
@@ -24,6 +24,9 @@ async function check() {
   } else {
     wx.setStorageSync("access_token", res.data.access_token);
     wx.setStorageSync("user_info", res.data);
+    wx.reLaunch({
+      url: `/${getCurrentPages()[0].route}`,
+    });
   }
 }
 
