@@ -46,6 +46,8 @@ router.post(
     });
     if (userInfo) {
       userInfo = userInfo.toJSON();
+      delete userInfo.password
+      delete userInfo.openId
       res.send({
         ...userInfo,
         access_token: jwtUtils.val2Token(userInfo, globalConfig.loginTime),

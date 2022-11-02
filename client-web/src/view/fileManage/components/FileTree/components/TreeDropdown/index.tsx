@@ -1,9 +1,7 @@
 import React from "react";
 import type { MenuInfo } from "rc-menu/lib/interface";
 
-import * as fileApi from "@/api/fileApi";
 import * as fileTypes from "@/types/file";
-import * as fileManageUtils from "../../index.utils";
 import * as selfUtils from "./index.utils";
 
 import { Dropdown, Menu, Modal, Input } from "antd";

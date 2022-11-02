@@ -8,23 +8,26 @@ export function setFillTreeData(
   tree: fileTypes.FileTree[],
   getFileTree: () => void
 ) {
-  function setTreesetTree(tree: fileTypes.FileTree[]): fileTypes.FileTree[] {
+  function setTreesetTree(
+    tree: fileTypes.FileTree[],
+    rootTree: fileTypes.FileTree[]
+  ): fileTypes.FileTree[] {
     if (tree instanceof Array) {
       return tree.map((node) => ({
         ...node,
         title: (
-          <TreeDropdown node={node} tree={tree} getFileTree={getFileTree}>
+          <TreeDropdown node={node} tree={rootTree} getFileTree={getFileTree}>
             <div>{node.name}</div>
           </TreeDropdown>
         ),
-        children: setTreesetTree(node.children || []),
+        children: setTreesetTree(node.children || [], rootTree),
       }));
     } else {
       return [];
     }
   }
 
-  return setTreesetTree(tree);
+  return setTreesetTree(tree, tree);
 }
 
 // 修改树形结构节点属性（返回新数据）

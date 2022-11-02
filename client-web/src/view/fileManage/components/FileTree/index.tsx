@@ -35,6 +35,7 @@ const FileTree: React.FC<Props> = function (props) {
       structure: newTree,
     });
     setTree(newTree);
+    props.getFileTree();
   };
 
   return (
