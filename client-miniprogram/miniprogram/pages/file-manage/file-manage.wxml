@@ -44,9 +44,9 @@
                 </van-button>
             </van-grid-item>
             <block wx:for="{{currDirFiles}}" wx:key="id">
-                <van-grid-item use-slot>
-                    <van-image class="file-manage__images" fit="contain" src="{{item.content}}" height="100%" width="100%" lazy-load show-menu-by-longpress />
-                    {{item.name}}
+                <van-grid-item use-slot data-item="{{item}}" bind:longpress="onOpenOptionFileAction">
+                    <van-image class="file-manage__image" fit="contain" src="{{item.content}}" height="100%" width="100%" lazy-load />
+                    <view class="file-manage__image-name">{{item.name}}</view>
                 </van-grid-item>
             </block>
         </van-grid>
@@ -58,5 +58,8 @@
         </view>
     </block>
     <!-- 弹出框位置，逻辑在js中 -->
+    <!-- 删除弹窗 -->
     <van-dialog id="remove" />
+    <!-- 操作文件弹窗 -->
+    <van-action-sheet show="{{!!selectFile.id}}" actions="{{optionFileActions}}" cancel-text="取消" bind:select="onOptionFile" bind:click-overlay="onClearOptionFile" bind:cancel="onClearOptionFile" />
 </view>

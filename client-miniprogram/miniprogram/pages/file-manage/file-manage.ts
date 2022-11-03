@@ -4,6 +4,9 @@ import Dialog from "@vant/weapp/dialog/dialog";
 import * as fileApi from "../../api/file";
 import * as selfUtils from "./file-manage.utils";
 import * as fileTypes from "../../types/file";
+import config from "../../config/config";
+
+const { envVersion } = wx.getAccountInfoSync().miniProgram;
 
 Page({
   dirTree: [] as fileTypes.FileTree[], // 目录树结构
@@ -11,10 +14,21 @@ Page({
    * 页面的初始数据
    */
   data: {
-    currDirFiles: [] as fileTypes.File[], // 当前目录文件
-    currDirFilesLoading: false, // 暂时没用，接口返回太快了，loading一闪而过很难受
     dirStack: [] as fileTypes.FileTree[], // 目录栈，目录的下钻、展示与返回都需要用到该栈
     addDirName: "", // 添加目录用户填写的名称
+
+    currDirFiles: [] as fileTypes.File[], // 当前目录文件
+    currDirFilesLoading: false, // 暂时没用，接口返回太快了，loading一闪而过很难受
+    isUploadFile: false, // 是否在上传文件
+    uploadFileProgress: 0, // 上传文件进度
+
+    selectFile: {} as fileTypes.File | {}, // 当前选中文件，通过长按选中
+    optionFileActions: [
+      {
+        name: "删除",
+        color: "#db3231",
+      },
+    ],
   },
 
   /**
@@ -59,8 +73,13 @@ Page({
   async getFile(form: { structureId?: string; name?: string } = {}) {
     const res = await fileApi.getFiles(form);
 
+    // 这里因为服务端暂时不用oss而使用了本地路径，这里将路径增加代理
+    let host = envVersion === "develop" ? config.requestProxy : "";
     this.setData({
-      currDirFiles: res.data,
+      currDirFiles: res.data.map((d) => ({
+        ...d,
+        content: `${host}${d.content}`,
+      })),
       currDirFilesLoading: false,
     });
   },
@@ -168,7 +187,79 @@ Page({
   },
 
   // 上传文件
-  async onUploadFile(){
-    console.log(123)
-  }
+  async onUploadFile() {
+    // 设备上获取图片
+    const result = await wx.chooseMedia({
+      mediaType: ["image"],
+      sourceType: ["album", "camera"],
+    });
+
+    // 开始上传
+    this.setData({
+      isUploadFile: true,
+      uploadFileProgress: 0,
+    });
+    const files = await fileApi.uploadFiles(result.tempFiles, (progress) => {
+      this.setData({
+        isUploadFile: progress !== 100,
+        uploadFileProgress: progress,
+      });
+    });
+
+    // 上传完成，添加文件
+    const dirStack = this.data.dirStack;
+    const currDirId = dirStack[dirStack.length - 1].id;
+    await fileApi.addFiles({
+      structureId: currDirId,
+      files: files.map((file) => ({
+        content: file.filepath,
+        name: file.originalname,
+      })),
+    });
+
+    // 添加完成，重新获取
+    this.getFile({ structureId: currDirId });
+  },
+
+  // 长按文件，打开设置菜单
+  onOpenOptionFileAction(e: WechatMiniprogram.BaseEvent) {
+    this.setData({
+      selectFile: e.currentTarget.dataset.item,
+    });
+  },
+
+  // 操作文件
+  onOptionFile(e: any) {
+    const selectFile = this.data.selectFile as fileTypes.File;
+
+    switch (e.detail.name) {
+      case "删除":
+        this.removeFile(selectFile);
+        break;
+      default:
+        break;
+    }
+
+    this.onClearOptionFile();
+  },
+
+  // 取消操作文件
+  onClearOptionFile() {
+    this.setData({
+      selectFile: {},
+    });
+  },
+
+  // 删除文件
+  async removeFile(file: fileTypes.File) {
+    await Dialog.confirm({
+      title: "确定删除文件？",
+      selector: "#remove",
+    });
+
+    await fileApi.removeFiles(file.id);
+    const dirStack = this.data.dirStack;
+    const currDirId = dirStack[dirStack.length - 1].id;
+    this.getFile({ structureId: currDirId });
+  },
 });

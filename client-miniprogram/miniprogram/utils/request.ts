@@ -1,6 +1,7 @@
 import config from "../config/config";
 import * as userApi from "../api/user";
 
+// 基本接口
 type method =
   | "OPTIONS"
   | "GET"
@@ -10,6 +11,12 @@ type method =
   | "DELETE"
   | "TRACE"
   | "CONNECT";
+
+type baseRequestFunc = (
+  url: string,
+  data?: {},
+  options?: { [key: string]: any }
+) => Promise<any>;
 
 const methods: method[] = [
   "OPTIONS",
@@ -68,7 +75,9 @@ function getRequest(method: method) {
   };
 }
 
-export default methods.reduce((curr, next) => {
+const request = methods.reduce((curr, next) => {
   curr[next.toLowerCase()] = getRequest(next);
   return curr;
-}, {} as { [key: string]: (url: string, data?: {}, options?: { [key: string]: any }) => Promise<any> });
+}, {} as { [key: string]: baseRequestFunc });
+
+export default request;
