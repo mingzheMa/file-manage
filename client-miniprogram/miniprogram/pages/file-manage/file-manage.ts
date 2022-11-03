@@ -12,7 +12,7 @@ Page({
    */
   data: {
     currDirFiles: [] as fileTypes.File[], // 当前目录文件
-    currDirFilesLoading: false,
+    currDirFilesLoading: false, // 暂时没用，接口返回太快了，loading一闪而过很难受
     dirStack: [] as fileTypes.FileTree[], // 目录栈，目录的下钻、展示与返回都需要用到该栈
     addDirName: "", // 添加目录用户填写的名称
   },
@@ -66,7 +66,7 @@ Page({
   },
 
   // 下钻目录
-  async onDrillDownDir(e: WechatMiniprogram.BaseEvent) {
+  onDrillDownDir(e: WechatMiniprogram.BaseEvent) {
     const dirId = e.currentTarget.dataset.id;
     const dir = selfUtils.fildFillTreeData(this.dirTree, dirId);
     if (!dir) return;
@@ -76,7 +76,7 @@ Page({
       currDirFilesLoading: true,
     });
 
-    await this.getFile({ structureId: dir.id });
+    this.getFile({ structureId: dir.id });
   },
 
   // 返回目录
@@ -84,9 +84,13 @@ Page({
     const dirStack = this.data.dirStack;
     if (dirStack.length <= 1) return;
 
+    const backedStack = dirStack.slice(0, dirStack.length - 1);
     this.setData({
-      dirStack: dirStack.slice(0, dirStack.length - 1),
+      dirStack: backedStack,
+      currDirFilesLoading: true,
     });
+
+    this.getFile({ structureId: backedStack[backedStack.length - 1].id });
   },
 
   // 添加目录
@@ -162,4 +166,9 @@ Page({
     this.onBackDir();
     await this.getFileTree();
   },
+
+  // 上传文件
+  async onUploadFile(){
+    console.log(123)
+  }
 });

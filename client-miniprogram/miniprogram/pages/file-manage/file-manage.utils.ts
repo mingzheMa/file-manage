@@ -48,19 +48,21 @@ export function updateFillTreeData(
  * @return {*} 找到的目录
  */
 export function fildFillTreeData(tree: fileTypes.FileTree[], id: string) {
-  function recursionTree(
-    tree: fileTypes.FileTree[]
-  ): fileTypes.FileTree | null {
-    for (let i = 0; i < tree.length; i++) {
-      if (tree[i].id === id) {
-        return tree[i];
-      } else {
-        return recursionTree(tree[i].children || []);
-      }
+  // 利用数组广度优先搜索
+  const arr = [...tree];
+  let result = null;
+
+  while (arr.length) {
+    const item = arr.pop();
+    if (item?.id === id) {
+      result = item;
+      break;
     }
 
-    return null;
+    if (item?.children && item.children.length) {
+      arr.push(...item.children);
+    }
   }
 
-  return recursionTree(tree);
+  return result;
 }

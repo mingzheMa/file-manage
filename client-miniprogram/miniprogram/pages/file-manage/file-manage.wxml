@@ -26,7 +26,7 @@
             </block>
         </van-cell-group>
         <!-- 空目录 -->
-        <view wx:else class="file-manage__dir-list-null">暂无数据</view>
+        <view wx:else class="file-manage--list-null">暂无数据</view>
         <!-- 删除操作 -->
         <view slot="right" style="width:120px;height:100%">
             <van-button custom-style="width:60px;height:100%" type="danger" bind:tap="onRemoveDir">
@@ -36,9 +36,26 @@
     </van-swipe-cell>
     <!-- 根目录下没有文件 -->
     <block wx:if="{{dirStack.length > 1}}">
-        {{currDirFilesLoading}}
         <text class="global-title-1">目录文件</text>
-        <view>文件目录。。。</view>
+        <van-grid wx:if="{{currDirFiles.length}}" column-num="2">
+            <van-grid-item class="file-manage__upload" use-slot>
+                <van-button class="file-manage__upload-btn" bind:tap="onUploadFile">
+                    <van-icon class-prefix="iconfont" name="upload" size="60" color="#333" />
+                </van-button>
+            </van-grid-item>
+            <block wx:for="{{currDirFiles}}" wx:key="id">
+                <van-grid-item use-slot>
+                    <van-image class="file-manage__images" fit="contain" src="{{item.content}}" height="100%" width="100%" lazy-load show-menu-by-longpress />
+                    {{item.name}}
+                </van-grid-item>
+            </block>
+        </van-grid>
+        <!-- 空目录 -->
+        <view wx:else class="file-manage--list-null">
+            暂无数据，
+            <text class="file-manage__upload-text-btn" bind:tap="onUploadFile">点击上传</text>
+            <van-icon class="file-manage__upload-text-btn" class-prefix="iconfont" name="upload" size="1.2em" />
+        </view>
     </block>
     <!-- 弹出框位置，逻辑在js中 -->
     <van-dialog id="remove" />
