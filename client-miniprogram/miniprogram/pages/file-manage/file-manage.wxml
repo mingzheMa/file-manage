@@ -44,8 +44,8 @@
                 </van-button>
             </van-grid-item>
             <block wx:for="{{currDirFiles}}" wx:key="id">
-                <van-grid-item use-slot data-item="{{item}}" bind:longpress="onOpenOptionFileAction">
-                    <van-image class="file-manage__image" fit="contain" src="{{item.content}}" height="100%" width="100%" lazy-load />
+                <van-grid-item use-slot data-item="{{item}}" bind:tap="onOpenOptionFileAction">
+                    <van-image class="file-manage__image" fit="contain" src="{{item.content}}" height="100%" width="100%" lazy-load show-menu-by-longpress />
                     <view class="file-manage__image-name">{{item.name}}</view>
                 </van-grid-item>
             </block>
