@@ -93,26 +93,37 @@ router.post(
   upload.array("file"),
   authMiddleware,
   nextCatch(async (req, res) => {
-    // 文件上传至oss
-    const uploadPromise = req.files.map((file) => OSSUtils.upload(file.path));
-    const uploaded = await Promise.all(uploadPromise);
+    // 这里原本设计上传oss，奈何oss流量收费太贵，暂时放弃
+    // // 文件上传至oss
+    // const uploadPromise = req.files.map((file) => OSSUtils.upload(file.path));
+    // const uploaded = await Promise.all(uploadPromise);
 
-    const response = [];
-    req.files.forEach((file, index) => {
-      // 构建返回信息
-      response.push({
+    // const response = [];
+    // req.files.forEach((file, index) => {
+    //   // 构建返回信息
+    //   response.push({
+    //     originalname: Buffer.from(file.originalname, "latin1").toString(
+    //       "utf-8"
+    //     ),
+    //     mimetype: file.mimetype,
+    //     filepath: uploaded[index].url,
+    //   });
+
+    //   // 删除本地文件
+    //   fs.rmSync(file.path)
+    // });
+
+    // res.send(response);
+
+    res.send(
+      req.files.map((file) => ({
         originalname: Buffer.from(file.originalname, "latin1").toString(
           "utf-8"
         ),
         mimetype: file.mimetype,
-        filepath: uploaded[index].url,
-      });
-
-      // 删除本地文件
-      fs.rmSync(file.path)
-    });
-
-    res.send(response);
+        filepath: `/public/upload/${file.filename}`,
+      }))
+    );
   })
 );
 
